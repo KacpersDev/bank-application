@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import mysql from 'mysql2/promise';
+import config from "../../../../config.json";
+import { createTransactionsTable } from '../dbSchema';
 
 export async function POST(req: NextRequest, res: NextResponse) {
     const data = await req.json();
@@ -7,14 +9,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     try {
         const connection = await mysql.createConnection({
-          host: '',
-          port: 3306,
-          user: '',
-          password: '',
-          database: '',
-        });
+            host: config.host,
+            port: config.port,
+            user: config.user,
+            password: config.password,
+            database: config.database,
+          });
 
-        await connection.execute(`CREATE TABLE IF NOT EXISTS transactions (sender VARCHAR(64), receiver VARCHAR(64), amount INT)`);
+        await createTransactionsTable(connection);
         const [rows] = await connection.execute(`SELECT * FROM transactions WHERE sender = ? OR receiver = ?`, [email, email]);
         return new Response(JSON.stringify({ status: 200, transactions: rows }));
     } catch (error) {

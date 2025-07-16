@@ -1,6 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import mysql from 'mysql2/promise';
 import { cookies } from "next/headers";
+import config from "../../../../../config.json";
+import { createAccountsTable } from '../../dbSchema';
 
 export async function POST(req: NextRequest, res: NextResponse) {
     const data = await req.json();
@@ -8,14 +10,15 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     try {
         const connection = await mysql.createConnection({
-          host: '46.247.108.133',
-          port: 3306,
-          user: 'u3_fVytWolksz',
-          password: 'yyLFXut@03l7Xs4tuP+V@+Mo',
-          database: 's3_bank',
+          host: config.host,
+          port: config.port,
+          user: config.user,
+          password: config.password,
+          database: config.database,
         });
     
-        await connection.execute(`CREATE TABLE IF NOT EXISTS accounts (email VARCHAR(64), name VARCHAR(64), password VARCHAR(64), accountKey VARCHAR(64), balance int)`);
+        await createAccountsTable(connection);
+        
 
         const [rows] = await connection.execute(`SELECT * FROM accounts WHERE email = ?`, [email]);
 
